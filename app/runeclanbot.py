@@ -298,7 +298,7 @@ if __name__ == '__main__':
 
     list_of_commands = {
         "!help": get_help,
-        "!info": get_clan_info
+        "!info": get_clan_info,
         "!keys": get_key_ranks,
         "!events": get_clan_event_log,
         "!achievements": get_clan_achievements,
