@@ -29,7 +29,7 @@ async def get_help():
 "!achievements": Lists the clan's recent achievements
 "!today": List the top clan members with the most exp gained today
 "!comp": List current competitions
-"!comp top <competition>": List competition leaders (e.g. !comp top firemaking)
+"!comp top <id>": List competition leaders (e.g. !comp top 1). Use "!comp" to get the id
 
 Bot originally made by slick rick, modified by The Matt
 """)
@@ -201,7 +201,7 @@ async def get_competitions():
         while competition_rows > 0:
             time_left += "There are " + competition_rows + " competitions active:\n"
             if row[row_index + 2].find('span').text == "active":
-                time_left += "The " + \
+                time_left += (row_index + 1) + "The " + \
                     row[row_index + 1].text + " XP competition has " + \
                     row[row_index + 4].text[:-6] + " remaining!\n"
             competition_rows -= 1
