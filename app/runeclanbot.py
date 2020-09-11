@@ -7,7 +7,6 @@ from helper_methods import *
 client = discord.Client()
 arrow = u"\u2192"
 
-
 class RuneClanBot:
 
     channel = None
@@ -18,6 +17,52 @@ class RuneClanBot:
         self.channel = channel
         self.clan_name = clan_name
         self.sent_message = sent_message
+
+
+@client.event
+async def get_help():
+    await RuneClanBot.channel.send("""RuneClan Discord bot commands:
+"!help": Displays this message
+"!info": Lists the clan's information
+"!keys": List's the clan's key members
+"!events": Lists the clan's recent activity
+"!achievements": Lists the clan's recent achievements
+"!today": List the top clan members with the most exp gained today
+"!comp": List current competitions
+"!comp top <competition>": List competition leaders (e.g. !comp top firemaking)
+
+Bot originally made by slick rick, modified by The Matt
+""")
+
+
+@client.event
+async def get_clan_info():
+
+    soup = soup_session("http://www.runeclan.com/clan/" +
+                        RuneClanBot.clan_name)
+
+    list_to_print = RuneClanBot.clan_name.replace("_", " ") + " - Clan Info:\n"
+
+    for clan_info in soup.find_all('span', attrs={'class': 'clan_subtext'}):
+        list_to_print += clan_info.text + " " + clan_info.next_sibling + \
+            "\n"  # next sibling prints out untagged text
+
+    await RuneClanBot.channel.send(list_to_print)
+
+
+@client.event
+async def get_key_ranks():
+
+    soup = soup_session("http://www.runeclan.com/clan/" +
+                        RuneClanBot.clan_name)
+
+    list_to_print = ""
+
+    for names in soup.find_all(attrs={'class': 'clan_ownerbox'}):
+        list_to_print += (names.text[2:] + " " +
+                          arrow + " " + names('img')[0]['alt'] + "\n")
+
+    await RuneClanBot.channel.send(list_to_print)
 
 
 @client.event
@@ -100,70 +145,6 @@ async def get_clan_achievements():
 
 
 @client.event
-async def get_clan_hiscores():
-
-    soup = soup_session("http://www.runeclan.com/clan/" +
-                        RuneClanBot.clan_name + "/hiscores")
-
-    clan_name_to_print = RuneClanBot.clan_name.replace("_", " ")
-    table_cell = 0
-    list_to_print = ""
-
-    list_count_requested = get_requested_list_count(
-        RuneClanBot.sent_message, 25, 15)
-
-    if list_count_requested[1]:
-        await RuneClanBot.channel.send(list_count_requested[1])
-        return
-
-    rows_to_print = list_count_requested[0]
-
-    for table in soup.find_all('table')[2:]:
-        for row_tag in soup.find_all('tr'):
-            row = table.find_all('td')
-            list_to_print += f"Rank {row[table_cell].text}: {row[table_cell+1].text} {arrow} Total Level: {row[table_cell+2].text} {arrow} Total xp: {row[table_cell+3].text} xp\n"
-
-            if int(row[table_cell].text) == rows_to_print:
-                break
-            else:
-                table_cell += 4
-
-    list_to_print = clan_name_to_print + "'s Overall Hiscores:\n\n" + list_to_print
-
-    await RuneClanBot.channel.send(list_to_print)
-
-
-@client.event
-async def get_key_ranks():
-
-    soup = soup_session("http://www.runeclan.com/clan/" +
-                        RuneClanBot.clan_name)
-
-    list_to_print = ""
-
-    for names in soup.find_all(attrs={'class': 'clan_ownerbox'}):
-        list_to_print += (names.text[2:] + " " +
-                          arrow + " " + names('img')[0]['alt'] + "\n")
-
-    await RuneClanBot.channel.send(list_to_print)
-
-
-@client.event
-async def get_clan_info():
-
-    soup = soup_session("http://www.runeclan.com/clan/" +
-                        RuneClanBot.clan_name)
-
-    list_to_print = RuneClanBot.clan_name.replace("_", " ") + " - Clan Info:\n"
-
-    for clan_info in soup.find_all('span', attrs={'class': 'clan_subtext'}):
-        list_to_print += clan_info.text + " " + clan_info.next_sibling + \
-            "\n"  # next sibling prints out untagged text
-
-    await RuneClanBot.channel.send(list_to_print)
-
-
-@client.event
 async def get_todays_hiscores():
 
     soup = soup_session("http://www.runeclan.com/clan/" +
@@ -193,7 +174,7 @@ async def get_todays_hiscores():
         if f"Rank {row[0].text}:" in todays_hiscores:
             continue
 
-        todays_hiscores += f"Rank {row[0].text}: {row[1].text} {arrow} Total xp: {row[2].text} xp\n"
+        todays_hiscores += f"Rank {row[0].text}: {row[1].text} {arrow} {row[2].text} xp\n"
 
         if int(row[0].text) == rows_to_print:
             break
@@ -202,7 +183,7 @@ async def get_todays_hiscores():
 
 
 @client.event
-async def get_skills_of_the_month_time_remaining():
+async def get_competitions():
 
     soup = soup_session("http://www.runeclan.com/clan/" +
                         RuneClanBot.clan_name + "/competitions")
@@ -218,8 +199,9 @@ async def get_skills_of_the_month_time_remaining():
             row = table.find_all('td')
 
         while competition_rows > 0:
+            time_left += "There are " + competition_rows + " competitions active:\n"
             if row[row_index + 2].find('span').text == "active":
-                time_left += "The currently active " + \
+                time_left += "The " + \
                     row[row_index + 1].text + " XP competition has " + \
                     row[row_index + 4].text[:-6] + " remaining!\n"
             competition_rows -= 1
@@ -229,33 +211,7 @@ async def get_skills_of_the_month_time_remaining():
 
 
 @client.event
-async def get_skills_of_the_month():
-
-    soup = soup_session("http://www.runeclan.com/clan/" +
-                        RuneClanBot.clan_name + "/competitions")
-
-    no_of_rows = get_active_competition_rows(RuneClanBot.clan_name)
-    clan_name_to_print = RuneClanBot.clan_name.replace("_", " ")
-    row_index = 0
-    skills_to_print = ""
-
-    if no_of_rows == 0:
-        await RuneClanBot.channel.send(clan_name_to_print + " has no active competitions at this time.")
-    else:
-        for table in soup.find_all('table')[4:]:
-            for row_cell in soup.find_all('tr'):
-                row = table.find_all('td')
-        while no_of_rows > 0:
-            if row[row_index + 2].find('span').text == "active":
-                skills_to_print += row[row_index + 1].text + ", "
-            no_of_rows -= 1
-            row_index += 5
-
-        await RuneClanBot.channel.send(skills_to_print[:-2])
-
-
-@client.event
-async def get_skills_of_the_month_hiscores():
+async def get_competition_leaders():
 
     soup = soup_session("http://www.runeclan.com/clan/" +
                         RuneClanBot.clan_name + "/competitions")
@@ -324,38 +280,10 @@ async def get_skills_of_the_month_hiscores():
 
 
 @client.event
-async def get_bots_commands():
-    await RuneClanBot.channel.send("""RuneClan Discord bot commands:
-
-"!setclan [Clan Name]": Sets the clan you wish to search for on RuneClan
-
-"!help": Prints everything that you're seeing right now
-"!hiscores top [x]": Prints clans overall hiscores (default: top 15)
-"!todays hiscores top [x]": Prints clans overall hiscores for today (default: top 10)
-"!competitions": Lists the currently active competitions on RuneClan
-"!competitions hiscores top [x]": Shows the hiscores for all active clan competitions  (default: top 5 for each skill)
-"!competitions time": Tell you how much time is remaining in the active competitions listed on RuneClan
-"!clan info": Prints the clan info listed on RuneClan
-"!key ranks": Lists the clans key ranks
-"!events top [x]": Prints the clan event log as seen on RuneClan (default: 10 most recent)
-"!achievements top [x]": Prints the clan achievement log as seen on RuneClan (default: 10 most recent)
-
-Things to note:
-  1. The "top [x]" feature is optional, and the default value is used if not entered.
-  2. This bot is not meant to work in private chat.
-
-- Bot made by Slick Rick""")
-
-
-@client.event
 async def on_message(message):
 
     RuneClanBot.channel = message.channel
     RuneClanBot.sent_message = message.content.replace("'", "")
-
-    if RuneClanBot.sent_message.lower() == "!help":
-        await get_bots_commands()
-        return
 
     try:
         command = list_of_commands[RuneClanBot.sent_message.lower().rsplit(" top", 1)[
@@ -366,22 +294,17 @@ async def on_message(message):
 
     return
 
-
 if __name__ == '__main__':
 
     list_of_commands = {
-        "!sotm": get_skills_of_the_month,
-        "!competitions": get_skills_of_the_month,
-        "!sotm hiscores": get_skills_of_the_month_hiscores,
-        "!competitions hiscores": get_skills_of_the_month_hiscores,
-        "!sotm time": get_skills_of_the_month_time_remaining,
-        "!competitions time": get_skills_of_the_month_time_remaining,
-        "!hiscores": get_clan_hiscores,
-        "!todays hiscores": get_todays_hiscores,
-        "!achievements": get_clan_achievements,
+        "!help": get_help,
+        "!info": get_clan_info
+        "!keys": get_key_ranks,
         "!events": get_clan_event_log,
-        "!key ranks": get_key_ranks,
-        "!clan info": get_clan_info
+        "!achievements": get_clan_achievements,
+        "!today": get_todays_hiscores,
+        "!comp": get_competitions,
+        "!comp top": get_competition_top,
     }
 
     client.run(environ["RUNECLANBOT_TOKEN"])
