@@ -211,7 +211,7 @@ async def get_competitions():
 
 
 @client.event
-async def get_competition_leaders():
+async def get_competition_top():
 
     soup = soup_session("http://www.runeclan.com/clan/" +
                         RuneClanBot.clan_name + "/competitions")
