@@ -75,16 +75,11 @@ async def get_clan_event_log():
     events_counter = 0
     event_list_end = False
 
-    list_count_requested = get_requested_list_count(
-        RuneClanBot.sent_message, 40, 10)
-
     if list_count_requested[1]:
         await RuneClanBot.channel.send(list_count_requested[1])
         return
 
-    events_to_print = list_count_requested[0]
-
-    for events_table in soup.find_all(attrs={'class': 'clan_event_box'})[0:events_to_print]:
+    for events_table in soup.find_all(attrs={'class': 'clan_event_box'})[0:10]:
         if " XP" in events_table.text or re.match("([0-9]{2,3} [A-Z][a-z]+)", events_table.text):
             event_list_end = True
             break
@@ -113,14 +108,6 @@ async def get_clan_achievements():
     clan_name_to_print = RuneClanBot.clan_name.replace("_", " ")
     index = 0
     total_achievements_displayed = 0
-    list_count_requested = get_requested_list_count(
-        RuneClanBot.sent_message, 40, 10)
-
-    if list_count_requested[1]:
-        await RuneClanBot.channel.send(list_count_requested[1])
-        return
-
-    achievements_to_print = list_count_requested[0]
 
     for clan_achievements_table in soup.find_all(attrs={'class': 'clan_event_box'}):
         if " XP" not in clan_achievements_table.text and not re.match("([0-9]{2,3} [A-Z][a-z]+)", clan_achievements_table.text):
@@ -128,7 +115,7 @@ async def get_clan_achievements():
         else:
             break
 
-    for clan_achievements_table in soup.find_all(attrs={'class': 'clan_event_box'})[index:index + achievements_to_print]:
+    for clan_achievements_table in soup.find_all(attrs={'class': 'clan_event_box'})[index:index + 10]:
         achievements += clan_achievements_table.text + "\n"
         total_achievements_displayed += 1
 
@@ -151,15 +138,6 @@ async def get_todays_hiscores():
                         RuneClanBot.clan_name + "/xp-tracker")
 
     todays_hiscores = ""
-    list_count_requested = get_requested_list_count(
-        RuneClanBot.sent_message, 40, 10)
-
-    if list_count_requested[1]:
-        await RuneClanBot.channel.send(list_count_requested[1])
-        return
-
-    rows_to_print = list_count_requested[0]
-
     table = soup.find_all('table')[3]
 
     for row_cell in table.find_all('tr')[1:]:
@@ -176,7 +154,7 @@ async def get_todays_hiscores():
 
         todays_hiscores += f"{row[0].text}. {row[1].text} {arrow} {row[2].text} xp\n"
 
-        if int(row[0].text) == rows_to_print:
+        if int(row[0].text) == 10:
             break
 
     await RuneClanBot.channel.send(todays_hiscores)
