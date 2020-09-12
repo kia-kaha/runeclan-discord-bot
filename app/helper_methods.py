@@ -42,15 +42,13 @@ def get_skills_in_clan_competition(clan_name):
     return []
 
 
-def get_requested_list_count(message, max_list, default):
+def get_requested_comp_id(message)
+    split_message = re.split(" ", message, flags=re.IGNORECASE)
+    if len(split_message) < 3
+        return -1, "No competition id specified."
 
     try:
-        if " top" in message.lower():
-            if not re.split(" top", message, flags=re.IGNORECASE)[1].strip().isdigit() or not 1 <= int(re.split(" top", message, flags=re.IGNORECASE)[1].strip()) <= max_list:
-                return 0, f"This feature is only valid for integer values between 1 and {max_list}."
-            else:
-                return int(re.split(" top", message, flags=re.IGNORECASE)[1].strip()), ""
-    except:
-        return 0, f"This feature is only valid for integer values between 1 and {max_list}."
+        return int(split_message[2]), ""
+    except ValueError:
+        return -1, "Invalid competition id specified"
 
-    return default, ""

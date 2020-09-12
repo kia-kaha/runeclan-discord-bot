@@ -174,7 +174,7 @@ async def get_todays_hiscores():
         if f"Rank {row[0].text}:" in todays_hiscores:
             continue
 
-        todays_hiscores += f"Rank {row[0].text}: {row[1].text} {arrow} {row[2].text} xp\n"
+        todays_hiscores += f"{row[0].text}. {row[1].text} {arrow} {row[2].text} xp\n"
 
         if int(row[0].text) == rows_to_print:
             break
@@ -201,7 +201,7 @@ async def get_competitions():
         while competition_rows > 0:
             time_left += "There are " + competition_rows + " competitions active:\n"
             if row[row_index + 2].find('span').text == "active":
-                time_left += (row_index + 1) + "The " + \
+                time_left += str(row_index + 1) + "The " + \
                     row[row_index + 1].text + " XP competition has " + \
                     row[row_index + 4].text[:-6] + " remaining!\n"
             competition_rows -= 1
@@ -212,56 +212,58 @@ async def get_competitions():
 
 @client.event
 async def get_competition_top():
-
-    soup = soup_session("http://www.runeclan.com/clan/" +
-                        RuneClanBot.clan_name + "/competitions")
-
-    table = soup.find_all('td', {'class': 'competition_td competition_name'})
-    skills_of_the_month = get_skills_in_clan_competition(RuneClanBot.clan_name)
-    row_count = get_active_competition_rows(RuneClanBot.clan_name)
-    clan_name_to_print = RuneClanBot.clan_name.replace("_", " ")
-
-    list_count_requested = get_requested_list_count(
-        RuneClanBot.sent_message, 10, 5)
-
-    if list_count_requested[1]:
-        await RuneClanBot.channel.send(list_count_requested[1])
-        return
-
-    rows_to_print = list_count_requested[0]
-
-    list_of_ranks = []
-    list_of_skills = []
-
-    player_rank_count = 0
-    skill_header_count = 0
-    skill_count = 0
     if get_active_competition_rows(RuneClanBot.clan_name) == 0:
         await RuneClanBot.channel.send(clan_name_to_print + " has no active competitions at this time.")
     else:
+        soup = soup_session("http://www.runeclan.com/clan/" +
+                            RuneClanBot.clan_name + "/competitions")
+
+        table = soup.find_all(
+            'td', {'class': 'competition_td competition_name'})
+        skills_of_the_month = get_skills_in_clan_competition(
+            RuneClanBot.clan_name)
+        row_count = get_active_competition_rows(RuneClanBot.clan_name)
+        clan_name_to_print = RuneClanBot.clan_name.replace("_", " ")
+
+        comp_id, error = get_requested_comp_id(RuneClanBot.sent_message)
+
+        if comp_id == 0:
+            await RuneClanBot.channel.send(error)
+            return
+
+        list_of_ranks = []
+        list_of_skills = []
+
+        player_rank_count = 0
+        skill_header_count = 0
+        skill_count = 0
+        i = 0
+
         for row in table:
-            for link in row.find_all('a', href=True):
+            i += 1
+            if i == comp_id:
+                for link in row.find_all('a', href=True):
 
-                soup = soup_session(
-                    "http://www.runeclan.com/clan/Envision/" + link['href'])
+                    soup = soup_session(
+                        "http://www.runeclan.com/clan/" + RuneClanBot.clan_name + "/" + link['href'])
 
-                row_index = 0
-                for table in soup.find_all('table')[3:]:
-                    while skill_header_count < row_count:
-                        list_of_skills.append(f"{clan_name_to_print}'s competition hiscores:\n {skills_of_the_month[1+skill_count].text}")
-                        skill_header_count += 1
-                        skill_count += 5
-                    try:
-                        rows = table.find_all('td')
-                        list_of_ranks.append(f"Rank {rows[row_index].text}: {rows[row_index+1].text} {arrow} Xp Gained: {rows[row_index+2].text} xp")
-                        if rows[row_index].text == rows_to_print:
+                    row_index = 0
+                    for table in soup.find_all('table')[3:]:
+                        while skill_header_count < row_count:
+                            list_of_skills.append(f"{clan_name_to_print}'s competition hiscores:\n {skills_of_the_month[1+skill_count].text}")
+                            skill_header_count += 1
+                            skill_count += 5
+                        try:
+                            rows = table.find_all('td')
+                            list_of_ranks.append(f"Rank {rows[row_index].text}: {rows[row_index+1].text} {arrow} Xp Gained: {rows[row_index+2].text} xp")
+                            if rows[row_index].text == rows_to_print:
+                                player_rank_count += 1
+                                break
+                            else:
+                                row_index += 3
                             player_rank_count += 1
+                        except IndexError:
                             break
-                        else:
-                            row_index += 3
-                        player_rank_count += 1
-                    except IndexError:
-                        break
 
         list_to_print = ""
         skills = 0
