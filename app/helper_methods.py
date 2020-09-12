@@ -44,7 +44,7 @@ def get_skills_in_clan_competition(clan_name):
 
 def get_requested_comp_id(message):
     split_message = re.split(" ", message, flags=re.IGNORECASE)
-    if len(split_message) < 3
+    if len(split_message) < 3:
         return -1, "No competition id specified."
 
     try:
