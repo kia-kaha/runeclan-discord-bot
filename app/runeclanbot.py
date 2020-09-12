@@ -75,10 +75,6 @@ async def get_clan_event_log():
     events_counter = 0
     event_list_end = False
 
-    if list_count_requested[1]:
-        await RuneClanBot.channel.send(list_count_requested[1])
-        return
-
     for events_table in soup.find_all(attrs={'class': 'clan_event_box'})[0:10]:
         if " XP" in events_table.text or re.match("([0-9]{2,3} [A-Z][a-z]+)", events_table.text):
             event_list_end = True
@@ -124,7 +120,7 @@ async def get_clan_achievements():
     achievements = re.sub("([0-9]{2,3} [A-Z][a-z]+)",
                           r"\1" + " " + arrow + " ", achievements)
 
-    if total_achievements_displayed != achievements_to_print:
+    if total_achievements_displayed != 10:
         achievements = "Only " + str(total_achievements_displayed) + " clan achievements are currently recorded on " + \
             clan_name_to_print + "'s RuneClan page:\n\n" + achievements
 
@@ -176,11 +172,12 @@ async def get_competitions():
         for table in soup.find_all('table')[4:]:
             row = table.find_all('td')
 
+        time_left += "There are " + \
+            str(competition_rows) + " competitions active:\n"
+
         while competition_rows > 0:
-            time_left += "There are " + \
-                str(competition_rows) + " competitions active:\n"
             if row[row_index + 2].find('span').text == "active":
-                time_left += str(row_index + 1) + "The " + \
+                time_left += str(competition_rows) + ". The " + \
                     row[row_index + 1].text + " XP competition has " + \
                     row[row_index + 4].text[:-6] + " remaining!\n"
             competition_rows -= 1
@@ -258,7 +255,7 @@ async def on_message(message):
     RuneClanBot.sent_message = message.content.replace("'", "")
 
     try:
-        command = list_of_commands[RuneClanBot.sent_message.lower().rsplit(" top", 1)[
+        command = list_of_commands[RuneClanBot.sent_message.lower().rsplit(" ", 2)[
             0].strip()]
         await command()
     except KeyError:
@@ -275,8 +272,8 @@ if __name__ == '__main__':
         "!events": get_clan_event_log,
         "!achievements": get_clan_achievements,
         "!today": get_todays_hiscores,
-        "!comp": get_competitions,
-        "!comp top": get_competition_top,
+        "!competitions": get_competitions,
+        "!competition": get_competition_top,
     }
 
     client.run(environ["RUNECLANBOT_TOKEN"])
