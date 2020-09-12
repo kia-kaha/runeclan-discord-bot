@@ -235,12 +235,10 @@ async def get_competition_top():
             await RuneClanBot.channel.send("Competition with " + str(comp_id) + " doesn't exist")
             return
 
+        output = ""
         list_of_ranks = []
-        list_of_skills = []
 
         player_rank_count = 0
-        skill_header_count = 0
-        skill_count = 0
         i = 0
 
         for row in table:
@@ -253,15 +251,11 @@ async def get_competition_top():
 
                     row_index = 0
                     for table in soup.find_all('table')[3:]:
-                        while skill_header_count < row_count:
-                            list_of_skills.append(f"{clan_name_to_print}'s competition hiscores:\n {skills_of_the_month[1+skill_count].text}")
-                            skill_header_count += 1
-                            skill_count += 5
+                        output += f"{clan_name_to_print}'s {skills_of_the_month[1+i].text} competition hiscores:\n "
                         try:
                             rows = table.find_all('td')
-                            list_of_ranks.append(f"Rank {rows[row_index].text}: {rows[row_index+1].text} {arrow} Xp Gained: {rows[row_index+2].text} xp")
-                            if rows[row_index].text == rows_to_print:
-                                player_rank_count += 1
+                            list_of_ranks.append(f"{rows[row_index].text}. {rows[row_index+1].text} {arrow} {rows[row_index+2].text} xp")
+                            if rows[row_index].text == 10:
                                 break
                             else:
                                 row_index += 3
@@ -269,18 +263,11 @@ async def get_competition_top():
                         except IndexError:
                             break
 
-        list_to_print = ""
-        skills = 0
-
-        while skills < row_count:
-            list_to_print += list_of_skills[skills]
-            for row in list_of_ranks[skills * rows_to_print:(skills * rows_to_print) + rows_to_print]:
-                list_to_print += str(row) + "\n\n"
-
-            skills += 1
+        for row in list_of_ranks
+            output += str(row) + "\n"
 
         try:
-            await RuneClanBot.channel.send(list_to_print)
+            await RuneClanBot.channel.send(output)
         except:
             await RuneClanBot.channel.send("Character limit exceeded. Please reduce the amount of ranks you wish to search for.")
 
