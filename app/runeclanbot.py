@@ -263,7 +263,7 @@ async def get_competition_top():
                         except IndexError:
                             break
 
-        for row in list_of_ranks
+        for row in list_of_ranks:
             output += str(row) + "\n"
 
         try:
