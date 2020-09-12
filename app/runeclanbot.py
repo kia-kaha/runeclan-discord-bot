@@ -231,6 +231,10 @@ async def get_competition_top():
             await RuneClanBot.channel.send(error)
             return
 
+        if comp_id > row_count or comp_id < 1:
+            await RuneClanBot.channel.send("Competition with " + str(comp_id) + " doesn't exist")
+            return
+
         list_of_ranks = []
         list_of_skills = []
 
