@@ -177,7 +177,8 @@ async def get_competitions():
             row = table.find_all('td')
 
         while competition_rows > 0:
-            time_left += "There are " + competition_rows + " competitions active:\n"
+            time_left += "There are " + \
+                str(competition_rows) + " competitions active:\n"
             if row[row_index + 2].find('span').text == "active":
                 time_left += str(row_index + 1) + "The " + \
                     row[row_index + 1].text + " XP competition has " + \
