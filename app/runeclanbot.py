@@ -145,7 +145,7 @@ async def get_todays_hiscores():
             continue
 
         # Prevents row duplication.
-        if f"Rank {row[0].text}:" in todays_hiscores:
+        if f"{row[0].text}." in todays_hiscores:
             continue
 
         todays_hiscores += f"{row[0].text}. {row[1].text} {arrow} {row[2].text} xp\n"
@@ -175,9 +175,11 @@ async def get_competitions():
         time_left += "There are " + \
             str(competition_rows) + " competitions active:\n"
 
+        all_rows = competition_rows + 1
+
         while competition_rows > 0:
             if row[row_index + 2].find('span').text == "active":
-                time_left += str(competition_rows) + ". The " + \
+                time_left += str(all_rows - competition_rows) + ". The " + \
                     row[row_index + 1].text + " XP competition has " + \
                     row[row_index + 4].text[:-6] + " remaining!\n"
             competition_rows -= 1
@@ -196,8 +198,6 @@ async def get_competition_top():
 
         table = soup.find_all(
             'td', {'class': 'competition_td competition_name'})
-        skills_of_the_month = get_skills_in_clan_competition(
-            RuneClanBot.clan_name)
         row_count = get_active_competition_rows(RuneClanBot.clan_name)
         clan_name_to_print = RuneClanBot.clan_name.replace("_", " ")
 
@@ -210,6 +210,9 @@ async def get_competition_top():
         if comp_id > row_count or comp_id < 1:
             await RuneClanBot.channel.send("Competition with " + str(comp_id) + " doesn't exist")
             return
+
+        competition_skill = get_skills_in_clan_competition(
+            RuneClanBot.clan_name)
 
         output = ""
         list_of_ranks = []
@@ -227,17 +230,12 @@ async def get_competition_top():
 
                     row_index = 0
                     for table in soup.find_all('table')[3:]:
-                        output += f"{clan_name_to_print}'s {skills_of_the_month[1+i].text} competition hiscores:\n "
+                        output += f"{clan_name_to_print}'s {competition_skill[((i-1)*5)+2].text} competition hiscores:\n "
                         try:
                             rows = table.find_all('td')
-                            list_of_ranks.append(f"{rows[row_index].text}. {rows[row_index+1].text} {arrow} {rows[row_index+2].text} xp")
-                            if rows[row_index].text == 10:
-                                break
-                            else:
-                                row_index += 3
-                            player_rank_count += 1
-                        except IndexError:
-                            break
+
+                            for i in range(0, 10):
+                                list_of_ranks.append(f"{rows[i].text}. {rows[i+2].text} {arrow} {rows[i+2].text} xp")
 
         for row in list_of_ranks:
             output += str(row) + "\n"
