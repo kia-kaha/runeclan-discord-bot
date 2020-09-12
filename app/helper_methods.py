@@ -42,7 +42,7 @@ def get_skills_in_clan_competition(clan_name):
     return []
 
 
-def get_requested_comp_id(message)
+def get_requested_comp_id(message):
     split_message = re.split(" ", message, flags=re.IGNORECASE)
     if len(split_message) < 3
         return -1, "No competition id specified."
@@ -51,4 +51,3 @@ def get_requested_comp_id(message)
         return int(split_message[2]), ""
     except ValueError:
         return -1, "Invalid competition id specified"
-
