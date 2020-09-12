@@ -22,14 +22,14 @@ class RuneClanBot:
 @client.event
 async def get_help():
     await RuneClanBot.channel.send("""RuneClan Discord bot commands:
-"!help": Displays this message
-"!info": Lists the clan's information
-"!keys": List's the clan's key members
-"!events": Lists the clan's recent activity
-"!achievements": Lists the clan's recent achievements
-"!today": List the top clan members with the most exp gained today
-"!comp": List current competitions
-"!comp top <id>": List competition leaders (e.g. !comp top 1). Use "!comp" to get the id
+!help: Displays this message
+!info: Lists the clan's information
+!keys: List's the clan's key members
+!events: Lists the clan's recent activity
+!achievements: Lists the clan's recent achievements
+!today: List the top clan members with the most exp gained today
+!comp: List current competitions
+!comp top <id>: List competition leaders (e.g. !comp top 1). Use "!comp" to get the id
 
 Bot originally made by slick rick, modified by The Matt
 """)
