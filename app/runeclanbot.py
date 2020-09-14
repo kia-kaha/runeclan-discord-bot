@@ -30,7 +30,7 @@ async def get_help():
 !achievements: Lists the clan's recent achievements
 !today: List the top clan members with the most exp gained today
 !competitions: List current competitions
-!competition <id>: List competition leaders (e.g. !comp top 1). Use "!comp" to get the id
+!competition <id>: List competition leaders (e.g. !competition 1). Use "!competition" to get the id
 
 Bot originally made by slick rick, modified by The Matt
 """)
