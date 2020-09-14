@@ -7,6 +7,7 @@ from helper_methods import *
 client = discord.Client()
 arrow = u"\u2192"
 
+
 class RuneClanBot:
 
     channel = None
@@ -224,18 +225,16 @@ async def get_competition_top():
             i += 1
             if i == comp_id:
                 for link in row.find_all('a', href=True):
-
                     soup = soup_session(
                         "http://www.runeclan.com/clan/" + RuneClanBot.clan_name + "/" + link['href'])
 
                     row_index = 0
                     for table in soup.find_all('table')[3:]:
                         output += f"{clan_name_to_print}'s {competition_skill[((i-1)*5)+2].text} competition hiscores:\n "
-                        try:
-                            rows = table.find_all('td')
+                        rows = table.find_all('td')
 
-                            for i in range(0, 10):
-                                list_of_ranks.append(f"{rows[i].text}. {rows[i+2].text} {arrow} {rows[i+2].text} xp")
+                        for i in range(0, 10):
+                            list_of_ranks.append(f"{rows[i].text}. {rows[i+2].text} {arrow} {rows[i+2].text} xp")
 
         for row in list_of_ranks:
             output += str(row) + "\n"
