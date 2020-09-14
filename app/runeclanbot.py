@@ -29,8 +29,8 @@ async def get_help():
 !events: Lists the clan's recent activity
 !achievements: Lists the clan's recent achievements
 !today: List the top clan members with the most exp gained today
-!comp: List current competitions
-!comp top <id>: List competition leaders (e.g. !comp top 1). Use "!comp" to get the id
+!competitions: List current competitions
+!competition <id>: List competition leaders (e.g. !comp top 1). Use "!comp" to get the id
 
 Bot originally made by slick rick, modified by The Matt
 """)
@@ -230,11 +230,12 @@ async def get_competition_top():
 
                     row_index = 0
                     for table in soup.find_all('table')[3:]:
-                        output += f"{clan_name_to_print}'s {competition_skill[((i-1)*5)+2].text} competition hiscores:\n "
-                        rows = table.find_all('td')
+                        output += f"{clan_name_to_print}'s {competition_skill[((i-1)*5)+1].text} competition hiscores:\n "
+                        rows = table.find_all('tr')
 
                         for i in range(0, 10):
-                            list_of_ranks.append(f"{rows[i].text}. {rows[i+2].text} {arrow} {rows[i+2].text} xp")
+                            row = rows[i].find_all('td')
+                            list_of_ranks.append(f"{row[0].text}. {row[1].text} {arrow} {rows[2].text} xp")
 
         for row in list_of_ranks:
             output += str(row) + "\n"
