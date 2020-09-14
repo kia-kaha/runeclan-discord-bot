@@ -233,8 +233,8 @@ async def get_competition_top():
                         rows = table.find_all('tr')
 
                         for i in range(0, 10):
-                            row = rows[i].find_all('td')
-                            output += f"{row[0].text}. {row[1].text} {arrow} {rows[2].text} xp\n"
+                            row = rows[i + 1].find_all('td')
+                            output += f"{row[0].text}. {row[1].text} {arrow} {row[2].text} xp\n"
 
         try:
             await RuneClanBot.channel.send(output)
