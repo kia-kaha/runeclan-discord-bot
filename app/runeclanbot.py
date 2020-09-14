@@ -216,7 +216,6 @@ async def get_competition_top():
             RuneClanBot.clan_name)
 
         output = ""
-        list_of_ranks = []
 
         player_rank_count = 0
         i = 0
@@ -230,15 +229,12 @@ async def get_competition_top():
 
                     row_index = 0
                     for table in soup.find_all('table')[3:]:
-                        output += f"{clan_name_to_print}'s {competition_skill[((i-1)*5)+1].text} competition hiscores:\n "
+                        output += f"{clan_name_to_print}'s {competition_skill[((i-1)*5)+1].text} competition hiscores:\n\n"
                         rows = table.find_all('tr')
 
                         for i in range(0, 10):
                             row = rows[i].find_all('td')
-                            list_of_ranks.append(f"{row[0].text}. {row[1].text} {arrow} {rows[2].text} xp")
-
-        for row in list_of_ranks:
-            output += str(row) + "\n"
+                            output += f"{row[0].text}. {row[1].text} {arrow} {rows[2].text} xp\n"
 
         try:
             await RuneClanBot.channel.send(output)
