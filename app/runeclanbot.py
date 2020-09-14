@@ -23,14 +23,14 @@ class RuneClanBot:
 @client.event
 async def get_help():
     await RuneClanBot.channel.send("""RuneClan Discord bot commands:
-!help: Displays this message
-!info: Lists the clan's information
-!keys: List's the clan's key members
-!events: Lists the clan's recent activity
-!achievements: Lists the clan's recent achievements
-!today: List the top clan members with the most exp gained today
-!competitions: List current competitions
-!competition <id>: List competition leaders (e.g. !competition 1). Use "!competition" to get the id
+.help: Displays this message
+.info: Lists the clan's information
+.keys: List's the clan's key members
+.events: Lists the clan's recent activity
+.achievements: Lists the clan's recent achievements
+.today: List the top clan members with the most exp gained today
+.competitions: List current competitions
+.competition <id>: List competition leaders (e.g. !competition 1). Use "!competition" to get the id
 
 Bot originally made by slick rick, modified by The Matt
 """)
@@ -260,14 +260,14 @@ async def on_message(message):
 if __name__ == '__main__':
 
     list_of_commands = {
-        "!help": get_help,
-        "!info": get_clan_info,
-        "!keys": get_key_ranks,
-        "!events": get_clan_event_log,
-        "!achievements": get_clan_achievements,
-        "!today": get_todays_hiscores,
-        "!competitions": get_competitions,
-        "!competition": get_competition_top,
+        ".help": get_help,
+        ".info": get_clan_info,
+        ".keys": get_key_ranks,
+        ".events": get_clan_event_log,
+        ".achievements": get_clan_achievements,
+        ".today": get_todays_hiscores,
+        ".competitions": get_competitions,
+        ".competition": get_competition_top,
     }
 
     client.run(environ["RUNECLANBOT_TOKEN"])
